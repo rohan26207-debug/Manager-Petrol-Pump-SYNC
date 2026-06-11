@@ -1,0 +1,236 @@
+{
+  "entities": {
+    "User": {
+      "title": "User",
+      "description": "A user's profile and registry entry.",
+      "type": "object",
+      "properties": {
+        "userId": {
+          "type": "string"
+        },
+        "email": {
+          "type": "string"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      "required": ["userId", "email"]
+    },
+    "Sale": {
+      "title": "Sale Record",
+      "description": "Fuel sales nozzle reading entry.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "date": { "type": "string" },
+        "nozzle": { "type": "string" },
+        "fuelType": { "type": "string" },
+        "startReading": { "type": "number" },
+        "endReading": { "type": "number" },
+        "liters": { "type": "number" },
+        "rate": { "type": "number" },
+        "amount": { "type": "number" },
+        "type": { "type": "string" },
+        "mpp": { "type": "boolean" },
+        "timestamp": { "type": "string" },
+        "userId": { "type": "string" }
+      },
+      "required": ["id", "date", "nozzle", "fuelType", "startReading", "endReading", "liters", "rate", "amount", "userId"]
+    },
+    "Credit": {
+      "title": "Credit Sale Record",
+      "description": "Customer credit accounts sales entry.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "date": { "type": "string" },
+        "customerId": { "type": "string" },
+        "customerName": { "type": "string" },
+        "amount": { "type": "number" },
+        "totalAmount": { "type": "number" },
+        "vehicleNumber": { "type": "string" },
+        "fuelType": { "type": "string" },
+        "liters": { "type": "number" },
+        "rate": { "type": "number" },
+        "dueDate": { "type": "string" },
+        "status": { "type": "string" },
+        "mpp": { "type": "boolean" },
+        "timestamp": { "type": "string" },
+        "fuelEntries": { "type": "array" },
+        "incomeEntries": { "type": "array" },
+        "expenseEntries": { "type": "array" },
+        "userId": { "type": "string" }
+      },
+      "required": ["id", "date", "customerId", "customerName", "amount", "userId"]
+    },
+    "Income": {
+      "title": "Income Record",
+      "description": "Income ledger entry.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "date": { "type": "string" },
+        "amount": { "type": "number" },
+        "description": { "type": "string" },
+        "type": { "type": "string" },
+        "mpp": { "type": "boolean" },
+        "timestamp": { "type": "string" },
+        "userId": { "type": "string" }
+      },
+      "required": ["id", "date", "amount", "userId"]
+    },
+    "Expense": {
+      "title": "Expense Record",
+      "description": "Expense ledger entry.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "date": { "type": "string" },
+        "amount": { "type": "number" },
+        "description": { "type": "string" },
+        "type": { "type": "string" },
+        "mpp": { "type": "boolean" },
+        "timestamp": { "type": "string" },
+        "userId": { "type": "string" }
+      },
+      "required": ["id", "date", "amount", "userId"]
+    },
+    "Payment": {
+      "title": "Payment Record",
+      "description": "Customer payments received.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "customerId": { "type": "string" },
+        "customerName": { "type": "string" },
+        "amount": { "type": "number" },
+        "date": { "type": "string" },
+        "mode": { "type": "string" },
+        "paymentType": { "type": "string" },
+        "settlementType": { "type": "string" },
+        "timestamp": { "type": "string" },
+        "linkedMPPCreditId": { "type": "string" },
+        "linkedMPPSettlementId": { "type": "string" },
+        "isAutoMPPTracking": { "type": "boolean" },
+        "description": { "type": "string" },
+        "userId": { "type": "string" }
+      },
+      "required": ["id", "customerId", "customerName", "amount", "date", "userId"]
+    },
+    "Settlement": {
+      "title": "Settlement Record",
+      "description": "Bank and cash settlements entries.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "date": { "type": "string" },
+        "amount": { "type": "number" },
+        "description": { "type": "string" },
+        "mpp": { "type": "boolean" },
+        "timestamp": { "type": "string" },
+        "userId": { "type": "string" }
+      },
+      "required": ["id", "date", "amount", "userId"]
+    },
+    "Customer": {
+      "title": "Customer Record",
+      "description": "Customer account details.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "startingBalance": { "type": "number" },
+        "isMPP": { "type": "boolean" },
+        "created_at": { "type": "string" },
+        "userId": { "type": "string" }
+      },
+      "required": ["id", "name", "userId"]
+    },
+    "SettlementType": {
+      "title": "Settlement Type",
+      "description": "Custom transaction payment modes.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "builtin": { "type": "boolean" },
+        "userId": { "type": "string" }
+      },
+      "required": ["id", "name", "userId"]
+    },
+    "Category": {
+      "title": "Category Definition",
+      "description": "Generic category lists for Income or Expense.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "userId": { "type": "string" }
+      },
+      "required": ["id", "name", "userId"]
+    },
+    "SingletonDocument": {
+      "title": "Metadata Settings Document",
+      "description": "User specific app settings and history variables stored in singletons.",
+      "type": "object",
+      "properties": {
+        "data": { "type": "object" },
+        "userId": { "type": "string" },
+        "updatedAt": { "type": "string" }
+      },
+      "required": ["data", "userId"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": "User",
+      "description": "User profiles database."
+    },
+    "/users/{userId}/sales/{saleId}": {
+      "schema": "Sale",
+      "description": "Sales records database."
+    },
+    "/users/{userId}/credits/{creditId}": {
+      "schema": "Credit",
+      "description": "Credit sales registry."
+    },
+    "/users/{userId}/income/{incomeId}": {
+      "schema": "Income",
+      "description": "Income ledger records."
+    },
+    "/users/{userId}/expense/{expenseId}": {
+      "schema": "Expense",
+      "description": "Expense ledger records."
+    },
+    "/users/{userId}/payments/{paymentId}": {
+      "schema": "Payment",
+      "description": "Customer payments received ledger."
+    },
+    "/users/{userId}/settlements/{settlementId}": {
+      "schema": "Settlement",
+      "description": "Bank and cash settlements ledger."
+    },
+    "/users/{userId}/customers/{customerId}": {
+      "schema": "Customer",
+      "description": "Customers contact register."
+    },
+    "/users/{userId}/settlementTypes/{settlementTypeId}": {
+      "schema": "SettlementType",
+      "description": "Custom payment and settlement modes."
+    },
+    "/users/{userId}/incomeCategories/{categoryId}": {
+      "schema": "Category",
+      "description": "Income category lists."
+    },
+    "/users/{userId}/expenseCategories/{categoryId}": {
+      "schema": "Category",
+      "description": "Expense category lists."
+    },
+    "/users/{userId}/settings/{settingId}": {
+      "schema": "SingletonDocument",
+      "description": "Local config, preferences, rates, stock lists, textsize, theme, etc."
+    }
+  }
+}

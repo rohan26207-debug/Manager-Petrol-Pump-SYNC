@@ -1,0 +1,199 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // Global Safety Net (default-deny)
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // Reuseable global helpers
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    function isVerifiedOwner(userId) {
+      return isOwner(userId) && request.auth.token.get('email_verified', false) == true;
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    // Entity validations
+    function isValidUser(data) {
+      return data.keys().hasAll(['userId', 'email']) 
+        && data.keys().size() >= 2
+        && data.userId is string && data.userId.size() <= 128
+        && data.email is string && data.email.size() <= 256;
+    }
+
+    function isValidSale(data) {
+      return data.keys().hasAll(['id', 'date', 'nozzle', 'fuelType', 'startReading', 'endReading', 'liters', 'rate', 'amount', 'userId'])
+        && data.id is string && data.id.size() <= 128
+        && data.date is string && data.date.size() <= 64
+        && data.nozzle is string && data.nozzle.size() <= 64
+        && data.fuelType is string && data.fuelType.size() <= 64
+        && data.startReading is number
+        && data.endReading is number
+        && data.liters is number
+        && data.rate is number
+        && data.amount is number
+        && data.userId is string && data.userId.size() <= 128;
+    }
+
+    function isValidCredit(data) {
+      return data.keys().hasAll(['id', 'date', 'customerId', 'customerName', 'amount', 'userId'])
+        && data.id is string && data.id.size() <= 128
+        && data.date is string && data.date.size() <= 64
+        && data.customerId is string && data.customerId.size() <= 128
+        && data.customerName is string && data.customerName.size() <= 256
+        && data.amount is number
+        && data.userId is string && data.userId.size() <= 128;
+    }
+
+    function isValidIncome(data) {
+      return data.keys().hasAll(['id', 'date', 'amount', 'userId'])
+        && data.id is string && data.id.size() <= 128
+        && data.date is string && data.date.size() <= 64
+        && data.amount is number
+        && data.userId is string && data.userId.size() <= 128;
+    }
+
+    function isValidExpense(data) {
+      return data.keys().hasAll(['id', 'date', 'amount', 'userId'])
+        && data.id is string && data.id.size() <= 128
+        && data.date is string && data.date.size() <= 64
+        && data.amount is number
+        && data.userId is string && data.userId.size() <= 128;
+    }
+
+    function isValidPayment(data) {
+      return data.keys().hasAll(['id', 'customerId', 'customerName', 'amount', 'date', 'userId'])
+        && data.id is string && data.id.size() <= 128
+        && data.customerId is string && data.customerId.size() <= 128
+        && data.customerName is string && data.customerName.size() <= 256
+        && data.amount is number
+        && data.date is string && data.date.size() <= 64
+        && data.userId is string && data.userId.size() <= 128;
+    }
+
+    function isValidSettlement(data) {
+      return data.keys().hasAll(['id', 'date', 'amount', 'userId'])
+        && data.id is string && data.id.size() <= 128
+        && data.date is string && data.date.size() <= 64
+        && data.amount is number
+        && data.userId is string && data.userId.size() <= 128;
+    }
+
+    function isValidCustomer(data) {
+      return data.keys().hasAll(['id', 'name', 'userId'])
+        && data.id is string && data.id.size() <= 128
+        && data.name is string && data.name.size() <= 256
+        && data.userId is string && data.userId.size() <= 128;
+    }
+
+    function isValidSettlementType(data) {
+      return data.keys().hasAll(['id', 'name', 'userId'])
+        && data.id is string && data.id.size() <= 128
+        && data.name is string && data.name.size() <= 128
+        && data.userId is string && data.userId.size() <= 128;
+    }
+
+    function isValidCategory(data) {
+      return data.keys().hasAll(['id', 'name', 'userId'])
+        && data.id is string && data.id.size() <= 128
+        && data.name is string && data.name.size() <= 128
+        && data.userId is string && data.userId.size() <= 128;
+    }
+
+    function isValidSingleton(data) {
+      return data.keys().hasAll(['data', 'userId'])
+        && data.userId is string && data.userId.size() <= 128;
+    }
+
+    // Rules matching individual user domains
+    match /users/{userId} {
+      allow get: if isOwner(userId) && isValidId(userId);
+      allow write: if isVerifiedOwner(userId) && isValidId(userId);
+      
+      match /sales/{saleId} {
+        allow read: if isOwner(userId);
+        allow create, update: if isVerifiedOwner(userId) && isValidId(saleId) && isValidSale(incoming()) && incoming().userId == userId;
+        allow delete: if isVerifiedOwner(userId) && isValidId(saleId);
+      }
+
+      match /credits/{creditId} {
+        allow read: if isOwner(userId);
+        allow create, update: if isVerifiedOwner(userId) && isValidId(creditId) && isValidCredit(incoming()) && incoming().userId == userId;
+        allow delete: if isVerifiedOwner(userId) && isValidId(creditId);
+      }
+
+      match /income/{incomeId} {
+        allow read: if isOwner(userId);
+        allow create, update: if isVerifiedOwner(userId) && isValidId(incomeId) && isValidIncome(incoming()) && incoming().userId == userId;
+        allow delete: if isVerifiedOwner(userId) && isValidId(incomeId);
+      }
+
+      match /expense/{expenseId} {
+        allow read: if isOwner(userId);
+        allow create, update: if isVerifiedOwner(userId) && isValidId(expenseId) && isValidExpense(incoming()) && incoming().userId == userId;
+        allow delete: if isVerifiedOwner(userId) && isValidId(expenseId);
+      }
+
+      match /payments/{paymentId} {
+        allow read: if isOwner(userId);
+        allow create, update: if isVerifiedOwner(userId) && isValidId(paymentId) && isValidPayment(incoming()) && incoming().userId == userId;
+        allow delete: if isVerifiedOwner(userId) && isValidId(paymentId);
+      }
+
+      match /settlements/{settlementId} {
+        allow read: if isOwner(userId);
+        allow create, update: if isVerifiedOwner(userId) && isValidId(settlementId) && isValidSettlement(incoming()) && incoming().userId == userId;
+        allow delete: if isVerifiedOwner(userId) && isValidId(settlementId);
+      }
+
+      match /customers/{customerId} {
+        allow read: if isOwner(userId);
+        allow create, update: if isVerifiedOwner(userId) && isValidId(customerId) && isValidCustomer(incoming()) && incoming().userId == userId;
+        allow delete: if isVerifiedOwner(userId) && isValidId(customerId);
+      }
+
+      match /settlementTypes/{settlementTypeId} {
+        allow read: if isOwner(userId);
+        allow create, update: if isVerifiedOwner(userId) && isValidId(settlementTypeId) && isValidSettlementType(incoming()) && incoming().userId == userId;
+        allow delete: if isVerifiedOwner(userId) && isValidId(settlementTypeId);
+      }
+
+      match /incomeCategories/{categoryId} {
+        allow read: if isOwner(userId);
+        allow create, update: if isVerifiedOwner(userId) && isValidId(categoryId) && isValidCategory(incoming()) && incoming().userId == userId;
+        allow delete: if isVerifiedOwner(userId) && isValidId(categoryId);
+      }
+
+      match /expenseCategories/{categoryId} {
+        allow read: if isOwner(userId);
+        allow create, update: if isVerifiedOwner(userId) && isValidId(categoryId) && isValidCategory(incoming()) && incoming().userId == userId;
+        allow delete: if isVerifiedOwner(userId) && isValidId(categoryId);
+      }
+
+      match /settings/{settingId} {
+        allow read: if isOwner(userId);
+        allow create, update: if isVerifiedOwner(userId) && isValidId(settingId) && isValidSingleton(incoming()) && incoming().userId == userId;
+        allow delete: if isVerifiedOwner(userId) && isValidId(settingId);
+      }
+    }
+  }
+}

@@ -1,0 +1,8 @@
+{
+	"appId": "com.mpumpcalc.app",
+	"appName": "Petrol Pump Calculator",
+	"webDir": "dist",
+	"server": {
+		"androidScheme": "https"
+	}
+}

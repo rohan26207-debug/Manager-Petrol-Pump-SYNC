@@ -1,0 +1,6 @@
+{
+  "name": "Manager Petrol Pump Calculator",
+  "description": "A comprehensive offline-first petrol pump management application for recording sales, credits, payments, and settlements, with built-in analytical reports.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
